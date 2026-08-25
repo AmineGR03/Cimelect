@@ -33,21 +33,31 @@ public class DataInitializer implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        if (userRepository.count() == 0) {
-            userRepository.save(User.builder()
-                    .firstName("Admin")
-                    .lastName("Cimelect")
-                    .email(appProperties.bootstrap().admin().email())
-                    .password(passwordEncoder.encode(appProperties.bootstrap().admin().password()))
-                    .role(Role.ADMINISTRATEUR)
-                    .enabled(true)
-                    .build());
-        }
+        ensureBootstrapAdmin();
         seedRequired(OperationType.IMPORT, DocumentType.FACTURE);
         seedRequired(OperationType.IMPORT, DocumentType.PACKING_LIST);
         seedRequired(OperationType.IMPORT, DocumentType.TRANSPORT);
         seedRequired(OperationType.EXPORT, DocumentType.FACTURE);
         seedRequired(OperationType.EXPORT, DocumentType.TRANSPORT);
+    }
+
+    private void ensureBootstrapAdmin() {
+        String email = appProperties.bootstrap().admin().email();
+        String password = appProperties.bootstrap().admin().password();
+        User admin = userRepository.findByEmail(email).orElseGet(() -> User.builder()
+                .firstName("Admin")
+                .lastName("Cimelect")
+                .email(email)
+                .role(Role.ADMINISTRATEUR)
+                .enabled(true)
+                .build());
+
+        if (!passwordEncoder.matches(password, admin.getPassword())) {
+            admin.setPassword(passwordEncoder.encode(password));
+        }
+        admin.setRole(Role.ADMINISTRATEUR);
+        admin.setEnabled(true);
+        userRepository.save(admin);
     }
 
     private void seedRequired(OperationType type, DocumentType documentType) {
