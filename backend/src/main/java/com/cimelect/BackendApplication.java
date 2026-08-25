@@ -1,4 +1,4 @@
-package com.cimelect.backend;
+package com.cimelect;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
