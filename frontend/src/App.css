@@ -6,8 +6,8 @@
   --surface: #ffffff;
   --surface-soft: #eef3ef;
   --focus: #17665e;
-  --sidebar: #245950;
-  --sidebar-hover: #34786c;
+  --sidebar: #17665e;
+  --sidebar-hover: #ffffff;
   --orange: #f47c48;
   --teal: #17665e;
 }
@@ -38,7 +38,8 @@ input:focus-visible {
 }
 .sidebar {
   width: 258px;
-  background: var(--sidebar);
+  background: var(--sidebar) !important;
+  background-color: var(--sidebar) !important;
   color: #fff;
   display: flex;
   flex-direction: column;
@@ -89,11 +90,12 @@ input:focus-visible {
 .nav-link:hover,
 .nav-link:hover {
   background: var(--sidebar-hover);
-  color: #fff;
+  color: var(--sidebar);
 }
 .nav-link.active {
-  background: #1b4b45;
-  color: #fff;
+  background: #ffffff;
+  color: var(--sidebar);
+  font-weight: 700;
 }
 .nav-link.active {
   box-shadow: inset 3px 0 var(--orange);
@@ -102,16 +104,6 @@ input:focus-visible {
   margin-top: auto;
   padding: 18px 10px 0;
   border-top: 1px solid #3b756b;
-}
-.user-panel {
-  padding: 11px 10px;
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  border-radius: 7px;
-  background: #1b4b45;
-}
-.user-panel:hover {
-  background: #163f3b;
-  border-color: rgba(255, 255, 255, 0.28);
 }
 .avatar,
 .partner-avatar {
@@ -151,6 +143,45 @@ input:focus-visible {
   display: flex;
   align-items: center;
   padding: 0 38px;
+}
+.topbar-meta {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  min-width: 0;
+}
+.topbar-user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 12px 6px 7px;
+  border-radius: 7px;
+  background: var(--sidebar);
+  color: #fff;
+  min-width: 0;
+}
+.topbar-user .avatar {
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+}
+.topbar-user strong,
+.topbar-user small {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.topbar-user strong {
+  font-size: 0.78rem;
+}
+.topbar-user small {
+  color: #c4e0d8;
+  font-size: 0.62rem;
+  margin-top: 2px;
+}
+.topbar-system {
+  white-space: nowrap;
 }
 .breadcrumb-text {
   font-size: 0.67rem;
@@ -565,6 +596,18 @@ h2 {
   }
   .topbar {
     height: 62px;
+    padding: 0 14px;
+  }
+  .topbar .breadcrumb-text {
+    display: none;
+  }
+  .topbar-meta {
+    width: 100%;
+    justify-content: flex-end;
+    gap: 12px;
+  }
+  .topbar-system {
+    font-size: 0.6rem;
   }
   .page-heading h1 {
     font-size: 2.15rem;

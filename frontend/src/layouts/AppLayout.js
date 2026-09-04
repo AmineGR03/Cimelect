@@ -126,20 +126,6 @@ export default function AppLayout() {
           ))}
         </nav>
         <div className="sidebar-footer">
-          <div className="user-panel d-flex align-items-center gap-2 mb-3">
-            <div className="avatar">
-              {user.firstName?.[0]}
-              {user.lastName?.[0]}
-            </div>
-            <div className="text-truncate">
-              <strong>
-                {user.firstName} {user.lastName}
-              </strong>
-              <small className="d-block text-white-50">
-                {user.role.replaceAll("_", " ")}
-              </small>
-            </div>
-          </div>
           <button
             className="btn btn-outline-light btn-sm w-100"
             onClick={signOut}
@@ -160,9 +146,23 @@ export default function AppLayout() {
           <span className="breadcrumb-text">
             CIMELECT <b>/</b> espace de travail
           </span>
-          <span className="ms-auto small text-secondary">
-            {formattedDate} <span className="ms-2">{systemLabel}</span> <i className={`bi bi-circle-fill ${systemTone} ms-2`}></i>
-          </span>
+          <div className="ms-auto topbar-meta">
+            <div className="topbar-user">
+              <div className="avatar">
+                {user.firstName?.[0]}
+                {user.lastName?.[0]}
+              </div>
+              <div className="text-truncate">
+                <strong>
+                  {user.firstName} {user.lastName}
+                </strong>
+                <small>{user.role.replaceAll("_", " ")}</small>
+              </div>
+            </div>
+            <span className="small text-secondary topbar-system">
+              {formattedDate} <span className="ms-2">{systemLabel}</span> <i className={`bi bi-circle-fill ${systemTone} ms-2`}></i>
+            </span>
+          </div>
         </header>
         <main className="container-fluid content">
           <Outlet />
