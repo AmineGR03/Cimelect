@@ -6,6 +6,8 @@
   --surface: #ffffff;
   --surface-soft: #eef3ef;
   --focus: #17665e;
+  --sidebar: #245950;
+  --sidebar-hover: #34786c;
   --orange: #f47c48;
   --teal: #17665e;
 }
@@ -36,7 +38,7 @@ input:focus-visible {
 }
 .sidebar {
   width: 258px;
-  background: #123d39;
+  background: var(--sidebar);
   color: #fff;
   display: flex;
   flex-direction: column;
@@ -85,8 +87,12 @@ input:focus-visible {
   font-size: 1rem;
 }
 .nav-link:hover,
+.nav-link:hover {
+  background: var(--sidebar-hover);
+  color: #fff;
+}
 .nav-link.active {
-  background: #245950;
+  background: #1b4b45;
   color: #fff;
 }
 .nav-link.active {
@@ -95,7 +101,17 @@ input:focus-visible {
 .sidebar-footer {
   margin-top: auto;
   padding: 18px 10px 0;
-  border-top: 1px solid #2b5a53;
+  border-top: 1px solid #3b756b;
+}
+.user-panel {
+  padding: 11px 10px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 7px;
+  background: #1b4b45;
+}
+.user-panel:hover {
+  background: #163f3b;
+  border-color: rgba(255, 255, 255, 0.28);
 }
 .avatar,
 .partner-avatar {
@@ -114,6 +130,15 @@ input:focus-visible {
 }
 .sidebar-footer small {
   font-size: 0.62rem;
+}
+.sidebar-footer .btn-outline-light {
+  border-color: rgba(255, 255, 255, 0.48);
+  color: #fff;
+}
+.sidebar-footer .btn-outline-light:hover {
+  background: #fff;
+  border-color: #fff;
+  color: var(--sidebar);
 }
 .page-area {
   flex: 1;

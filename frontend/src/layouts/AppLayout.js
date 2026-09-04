@@ -126,7 +126,7 @@ export default function AppLayout() {
           ))}
         </nav>
         <div className="sidebar-footer">
-          <div className="d-flex align-items-center gap-2 mb-3">
+          <div className="user-panel d-flex align-items-center gap-2 mb-3">
             <div className="avatar">
               {user.firstName?.[0]}
               {user.lastName?.[0]}
