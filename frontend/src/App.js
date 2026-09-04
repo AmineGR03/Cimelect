@@ -11,6 +11,10 @@ import PartnersPage from "./pages/PartnersPage";
 import UsersPage from "./pages/UsersPage";
 import ManagementPage from "./pages/ManagementPage";
 import OperationsManagementPage from "./pages/OperationsManagementPage";
+import ShipmentManagementPage from "./pages/ShipmentManagementPage";
+import DocumentsPage from "./pages/DocumentsPage";
+import AuditPage from "./pages/AuditPage";
+import ProfilePage from "./pages/ProfilePage";
 import { loadWorkspace } from "./store/dashboardSlice";
 import "./App.css";
 
@@ -22,7 +26,14 @@ function Workspace() {
   );
   useEffect(() => {
     if (user) {
-      dispatch(loadWorkspace(canSeeDashboard));
+      dispatch(
+        loadWorkspace({
+          canSeeDashboard,
+          canSeePartners: ["ADMINISTRATEUR", "AGENT_IMPORT_EXPORT"].includes(
+            user.role,
+          ),
+        }),
+      );
     }
   }, [dispatch, canSeeDashboard, user]);
   return <AppLayout />;
@@ -40,10 +51,24 @@ export default function App() {
             </ProtectedRoute>
           }
         >
-          <Route path="/dashboard" element={<DashboardPage />} />
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute
+                roles={["ADMINISTRATEUR", "RESPONSABLE"]}
+                redirectTo="/operations"
+              >
+                <DashboardPage />
+              </ProtectedRoute>
+            }
+          />
           <Route path="/operations" element={<OperationsPage />} />
           <Route path="/operations/manage" element={<OperationsManagementPage />} />
           <Route path="/shipments" element={<ShipmentsPage />} />
+          <Route path="/shipments/manage" element={<ShipmentManagementPage />} />
+          <Route path="/documents" element={<DocumentsPage />} />
+          <Route path="/audit" element={<AuditPage />} />
+          <Route path="/profile" element={<ProfilePage />} />
           <Route path="/partners" element={<PartnersPage />} />
           <Route path="/partners/suppliers" element={<ManagementPage type="suppliers" />} />
           <Route path="/partners/customers" element={<ManagementPage type="customers" />} />

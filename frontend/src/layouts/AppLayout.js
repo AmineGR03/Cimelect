@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { logout } from "../store/authSlice";
@@ -26,6 +27,18 @@ const links = [
     label: "Expéditions",
     icon: "bi-box-seam",
     roles: ["ADMINISTRATEUR", "RESPONSABLE", "AGENT_IMPORT_EXPORT"],
+  },
+  {
+    to: "/shipments/manage",
+    label: "Gestion expéditions",
+    icon: "bi-boxes",
+    roles: ["ADMINISTRATEUR", "AGENT_IMPORT_EXPORT"],
+  },
+  {
+    to: "/documents",
+    label: "Documents",
+    icon: "bi-file-earmark-text",
+    roles: ["ADMINISTRATEUR", "AGENT_IMPORT_EXPORT"],
   },
   {
     to: "/partners",
@@ -57,14 +70,41 @@ const links = [
     icon: "bi-people",
     roles: ["ADMINISTRATEUR"],
   },
+  {
+    to: "/audit",
+    label: "Audit",
+    icon: "bi-clock-history",
+    roles: ["ADMINISTRATEUR", "RESPONSABLE"],
+  },
+  {
+    to: "/profile",
+    label: "Mon profil",
+    icon: "bi-person-circle",
+    roles: ["ADMINISTRATEUR", "RESPONSABLE", "AGENT_IMPORT_EXPORT"],
+  },
 ];
 
 export default function AppLayout() {
   const { user } = useSelector((state) => state.auth);
+  const { loading, error } = useSelector((state) => state.dashboard);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const [currentDate, setCurrentDate] = useState(() => new Date());
   const items = links.filter((link) => link.roles.includes(user.role));
   const signOut = () => dispatch(logout()).finally(() => navigate("/login"));
+
+  useEffect(() => {
+    const timer = window.setInterval(() => setCurrentDate(new Date()), 60000);
+    return () => window.clearInterval(timer);
+  }, []);
+
+  const formattedDate = new Intl.DateTimeFormat("fr-FR", {
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
+  }).format(currentDate).toUpperCase();
+  const systemLabel = error ? "CONNEXION À VÉRIFIER" : loading ? "SYNCHRONISATION" : "SYSTÈME OPÉRATIONNEL";
+  const systemTone = error ? "text-danger" : loading ? "text-warning" : "text-success";
   return (
     <div className="app-shell">
       <aside className="sidebar offcanvas-lg offcanvas-start" id="mainSidebar">
@@ -121,7 +161,7 @@ export default function AppLayout() {
             CIMELECT <b>/</b> espace de travail
           </span>
           <span className="ms-auto small text-secondary">
-            25 AOÛT 2026 <i className="bi bi-circle-fill text-success ms-2"></i>
+            {formattedDate} <span className="ms-2">{systemLabel}</span> <i className={`bi bi-circle-fill ${systemTone} ms-2`}></i>
           </span>
         </header>
         <main className="container-fluid content">

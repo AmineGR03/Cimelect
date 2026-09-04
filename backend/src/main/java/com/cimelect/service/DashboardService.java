@@ -5,6 +5,8 @@ import com.cimelect.entity.Operation;
 import com.cimelect.entity.Shipment;
 import com.cimelect.enums.OperationStatus;
 import com.cimelect.enums.OperationType;
+import com.cimelect.repository.DocumentRepository;
+import com.cimelect.repository.RequiredDocumentRepository;
 import com.cimelect.repository.OperationRepository;
 import com.cimelect.repository.ShipmentRepository;
 import org.springframework.stereotype.Service;
@@ -25,10 +27,19 @@ public class DashboardService {
 
     private final OperationRepository operationRepository;
     private final ShipmentRepository shipmentRepository;
+        private final DocumentRepository documentRepository;
+        private final RequiredDocumentRepository requiredDocumentRepository;
 
-    public DashboardService(OperationRepository operationRepository, ShipmentRepository shipmentRepository) {
+        public DashboardService(
+                        OperationRepository operationRepository,
+                        ShipmentRepository shipmentRepository,
+                        DocumentRepository documentRepository,
+                        RequiredDocumentRepository requiredDocumentRepository
+        ) {
         this.operationRepository = operationRepository;
         this.shipmentRepository = shipmentRepository;
+                this.documentRepository = documentRepository;
+                this.requiredDocumentRepository = requiredDocumentRepository;
     }
 
     @Transactional(readOnly = true)
@@ -91,12 +102,30 @@ public class DashboardService {
                     ));
                 });
 
+        Map<String, BigDecimal> documentCompliance = new java.util.HashMap<>();
+        for (com.cimelect.enums.DocumentType documentType : com.cimelect.enums.DocumentType.values()) {
+            List<Operation> applicable = operations.stream()
+                    .filter(operation -> requiredDocumentRepository
+                            .findByOperationTypeAndDocumentType(operation.getType(), documentType)
+                            .map(requirement -> requirement.isRequired())
+                            .orElse(false))
+                    .toList();
+            long complete = applicable.stream()
+                    .filter(operation -> documentRepository.findByOperationId(operation.getId()).stream()
+                            .anyMatch(document -> document.getType() == documentType))
+                    .count();
+            BigDecimal rate = applicable.isEmpty()
+                    ? BigDecimal.ZERO
+                    : BigDecimal.valueOf(complete * 100.0 / applicable.size()).setScale(2, RoundingMode.HALF_UP);
+            documentCompliance.put(documentType.name(), rate);
+        }
+
         List<DashboardResponse.AiAlert> alerts = shipments.stream()
                 .filter(Shipment::isAiAnalysisTriggered)
                 .map(s -> new DashboardResponse.AiAlert(s.getId(), "Écart de délai supérieur au seuil (analyse IA)"))
                 .toList();
 
-        return new DashboardResponse(byStatus, averageDelay, averageCost, anomalyRate, volumeTrend, costTrend, alerts);
+        return new DashboardResponse(byStatus, averageDelay, averageCost, anomalyRate, volumeTrend, costTrend, documentCompliance, alerts);
     }
 
     private BigDecimal sumCost(List<Operation> operations, OperationType type) {

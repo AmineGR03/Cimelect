@@ -21,7 +21,14 @@ Le frontend stocke le token JWT reçu après connexion dans le stockage local du
 
 ## Autres rôles
 
-Aucun compte `RESPONSABLE` ou `AGENT_IMPORT_EXPORT` n’est créé automatiquement actuellement. L’administrateur peut les créer depuis l’endpoint backend `POST /api/users` avec un corps similaire :
+Les comptes de démonstration `RESPONSABLE` et `AGENT_IMPORT_EXPORT` sont également créés automatiquement par `DataInitializer` :
+
+| Rôle | Email | Mot de passe |
+| --- | --- | --- |
+| Responsable | `responsable@cimelect.local` | `Responsable123!` |
+| Agent import/export | `agent@cimelect.local` | `Agent123!` |
+
+L’administrateur peut aussi créer d’autres comptes depuis l’endpoint backend `POST /api/users` avec un corps similaire :
 
 ```json
 {

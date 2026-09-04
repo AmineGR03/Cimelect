@@ -14,6 +14,7 @@ public record DashboardResponse(
         BigDecimal anomalyRate,
         List<VolumePoint> volumeTrend,
         List<CostPoint> costTrend,
+        Map<String, BigDecimal> documentCompliance,
         List<AiAlert> activeAiAlerts
 ) {
     public record VolumePoint(String period, long importCount, long exportCount) {

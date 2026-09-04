@@ -15,14 +15,19 @@ Cimelect est une application de pilotage des opérations de commerce internation
 - Visualisation de la tendance des imports et exports.
 - Suivi des alertes IA associées aux expéditions.
 - Consultation des opérations import/export et de leur statut.
-- Suivi des expéditions en cours.
-- Consultation des clients et fournisseurs.
-- Gestion des documents et des exigences documentaires via l’API.
+- Suivi et gestion de toutes les expéditions, y compris les expéditions livrées.
+- Consultation et gestion des clients, fournisseurs et produits.
+- Gestion des documents par opération : dépôt, téléchargement, suppression et contrôle des exigences.
+- Historique des opérations et journal d’audit.
+- Fiche partenaire avec opérations et indicateurs associés.
+- Profil utilisateur et modification des informations personnelles.
+- Recherche, filtres, tri et pagination sur les listes principales.
 - Gestion des utilisateurs selon le rôle connecté.
+- Interface avec états de chargement, succès, erreur, focus et sélection visibles.
 
 ## Prérequis
 
-- Java 17 ou version compatible avec le projet Maven.
+- JDK 21.
 - Node.js et npm.
 - PostgreSQL lancé localement.
 - Une base PostgreSQL nommée `cimelect_db`.
@@ -41,6 +46,7 @@ L’API est disponible sur `http://localhost:8080`.
 Au démarrage, `DataInitializer` crée automatiquement :
 
 - le compte administrateur bootstrap s’il n’existe aucun utilisateur ;
+- les comptes de démonstration responsable et agent import/export ;
 - les exigences documentaires par défaut pour les imports et les exports.
 
 Les informations du compte sont dans [CREDENTIALS.md](CREDENTIALS.md).
@@ -72,6 +78,10 @@ npm test -- --watchAll=false
 npm run build
 ```
 
+Les tests frontend couvrent notamment l’authentification, les rôles, les opérations,
+les documents, les expéditions et les utilisateurs. Les tests backend nécessitent
+PostgreSQL actif sur `localhost:5432`.
+
 ## Rôles
 
 - `ADMINISTRATEUR` : accès complet, dashboard, utilisateurs, audit et paramétrage.
@@ -79,6 +89,17 @@ npm run build
 - `AGENT_IMPORT_EXPORT` : opérations, expéditions, clients, fournisseurs et produits selon les droits backend.
 
 Les permissions sont contrôlées côté backend par Spring Security. Le masquage des liens dans le frontend améliore l’expérience, mais ne remplace pas cette protection.
+
+## État et améliorations restantes
+
+La checklist détaillée se trouve dans [AUDIT_CDC_TODO.md](AUDIT_CDC_TODO.md). Les principaux travaux restants sont :
+
+- tester les trois rôles sur un environnement complet ;
+- renforcer les tests d’autorisation et d’intégration ;
+- configurer Java 21 automatiquement pour Maven et les environnements de déploiement ;
+- ajouter observabilité, logs structurés, sauvegardes et documentation API ;
+- améliorer accessibilité, pagination côté serveur et gestion des erreurs réseau ;
+- traiter ultérieurement la fonctionnalité IA, volontairement hors périmètre actuel.
 
 ## Configuration PostgreSQL
 

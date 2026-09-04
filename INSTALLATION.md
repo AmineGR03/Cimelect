@@ -6,7 +6,7 @@ Ce guide explique comment installer et lancer Cimelect en environnement local Wi
 
 Installer les outils suivants :
 
-- Java 17 ou supérieur.
+- JDK 21.
 - Node.js et npm.
 - PostgreSQL 17 ou compatible.
 - Git, si le projet est récupéré depuis un dépôt.
@@ -46,6 +46,7 @@ Depuis la racine du projet :
 
 ```powershell
 cd backend
+$env:JAVA_HOME="C:\Program Files\Java\jdk-21.0.12"
 .\mvnw.cmd clean compile
 .\mvnw.cmd spring-boot:run
 ```
@@ -59,6 +60,7 @@ http://localhost:8080
 Au premier démarrage, le backend crée automatiquement les tables grâce à JPA et initialise :
 
 - le compte administrateur bootstrap ;
+- les comptes de démonstration responsable et agent import/export ;
 - les exigences documentaires des imports et exports.
 
 Compte de connexion :
@@ -115,6 +117,14 @@ Invoke-RestMethod -Uri http://localhost:3000/api/auth/login -Method Post -Conten
 ```
 
 La réponse doit contenir un token, l’adresse email, l’identifiant utilisateur et le rôle.
+
+Tester le backend avec PostgreSQL actif :
+
+```powershell
+cd backend
+$env:JAVA_HOME="C:\Program Files\Java\jdk-21.0.12"
+.\mvnw.cmd test
+```
 
 ## 7. Dépannage
 

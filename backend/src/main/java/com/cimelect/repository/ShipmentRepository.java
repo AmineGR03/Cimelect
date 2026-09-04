@@ -11,6 +11,9 @@ import java.util.Optional;
 public interface ShipmentRepository extends JpaRepository<Shipment, Long> {
 
     @EntityGraph(attributePaths = {"operation"})
+    List<Shipment> findAll();
+
+    @EntityGraph(attributePaths = {"operation"})
     Optional<Shipment> findById(Long id);
 
     @EntityGraph(attributePaths = {"operation"})

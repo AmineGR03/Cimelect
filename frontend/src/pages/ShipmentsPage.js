@@ -1,9 +1,12 @@
+import { useState } from "react";
 import { useSelector } from "react-redux";
 import StatusBadge from "../components/StatusBadge";
 export default function ShipmentsPage() {
+  const [query, setQuery] = useState("");
   const shipments = useSelector(
     (state) => state.dashboard.data.shipments || [],
   );
+  const visibleShipments = shipments.filter((item) => [item.operationReference, item.carrier, item.status].filter(Boolean).join(" ").toLowerCase().includes(query.toLowerCase().trim()));
   return (
     <>
       <div className="page-heading">
@@ -13,8 +16,9 @@ export default function ShipmentsPage() {
           Les mouvements à surveiller aujourd’hui.
         </p>
       </div>
+      <input className="form-control mb-3" placeholder="Rechercher une expédition..." value={query} onChange={(e) => setQuery(e.target.value)} />
       <div className="row g-3">
-        {shipments.map((item) => (
+        {visibleShipments.map((item) => (
           <div className="col-12 col-lg-6" key={item.id}>
             <article className="card shipment-card">
               <div className="card-body d-flex gap-3 align-items-start">
@@ -37,7 +41,7 @@ export default function ShipmentsPage() {
             </article>
           </div>
         ))}
-        {!shipments.length && (
+        {!visibleShipments.length && (
           <p className="text-secondary">Aucune expédition en cours.</p>
         )}
       </div>

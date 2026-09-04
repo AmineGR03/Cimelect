@@ -35,6 +35,7 @@ public class DocumentController {
     }
 
     @GetMapping("/operations/{operationId}/documents")
+    @PreAuthorize("hasAnyRole('ADMINISTRATEUR', 'RESPONSABLE', 'AGENT_IMPORT_EXPORT')")
     public List<DocumentResponse> byOperation(@PathVariable Long operationId) {
         return documentService.findByOperation(operationId);
     }
@@ -51,6 +52,7 @@ public class DocumentController {
     }
 
     @GetMapping("/documents/{id}/download")
+    @PreAuthorize("hasAnyRole('ADMINISTRATEUR', 'RESPONSABLE', 'AGENT_IMPORT_EXPORT')")
     public ResponseEntity<Resource> download(@PathVariable Long id) {
         var document = documentService.get(id);
         Resource resource = documentService.download(id);
@@ -68,6 +70,7 @@ public class DocumentController {
     }
 
     @GetMapping("/document-requirements")
+    @PreAuthorize("hasAnyRole('ADMINISTRATEUR', 'RESPONSABLE', 'AGENT_IMPORT_EXPORT')")
     public List<RequiredDocumentResponse> requirements(@RequestParam(required = false) OperationType type) {
         return documentService.listRequirements(type);
     }

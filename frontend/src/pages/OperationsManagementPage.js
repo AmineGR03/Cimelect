@@ -17,6 +17,11 @@ const emptyForm = {
   ],
 };
 
+const nextStatuses = {
+  IMPORT: { CREEE: "EN_TRANSIT", EN_TRANSIT: "DEDOUANEMENT", DEDOUANEMENT: "RECUE" },
+  EXPORT: { CREEE: "PREPARATION", PREPARATION: "EXPEDIEE", EXPEDIEE: "LIVREE" },
+};
+
 export default function OperationsManagementPage() {
   const [operations, setOperations] = useState([]);
   const [suppliers, setSuppliers] = useState([]);
@@ -24,6 +29,7 @@ export default function OperationsManagementPage() {
   const [products, setProducts] = useState([]);
   const [form, setForm] = useState(emptyForm);
   const [error, setError] = useState("");
+  const [history, setHistory] = useState(null);
 
   const loadData = async () => {
     try {
@@ -61,6 +67,7 @@ export default function OperationsManagementPage() {
   };
 
   const removeLine = (index) => {
+    if (form.lines.length === 1) return;
     setForm({
       ...form,
       lines: form.lines.filter((_, idx) => idx !== index),
@@ -70,6 +77,18 @@ export default function OperationsManagementPage() {
   const submit = async (event) => {
     event.preventDefault();
     setError("");
+    if (form.type === "IMPORT" && !form.supplierId) {
+      setError("Le fournisseur est obligatoire.");
+      return;
+    }
+    if (form.type === "EXPORT" && !form.customerId) {
+      setError("Le client est obligatoire.");
+      return;
+    }
+    if (form.lines.some((line) => !line.productId || Number(line.quantity) <= 0 || (line.unitPrice !== "" && Number(line.unitPrice) < 0))) {
+      setError("Chaque ligne doit contenir un produit, une quantité positive et un prix valide.");
+      return;
+    }
     const payload = {
       supplierId: form.type === "IMPORT" ? Number(form.supplierId) : null,
       customerId: form.type === "EXPORT" ? Number(form.customerId) : null,
@@ -136,6 +155,40 @@ export default function OperationsManagementPage() {
         unitPrice: line.unitPrice ?? "",
       })),
     });
+  };
+
+  const advanceStatus = async (operation) => {
+    const status = nextStatuses[operation.type]?.[operation.status];
+    if (!status) return;
+    try {
+      await apiRequest(`/operations/${operation.id}/status`, {
+        method: "PATCH",
+        body: JSON.stringify({ status }),
+      });
+      await loadData();
+    } catch (err) {
+      setError(err.message || "Transition impossible.");
+    }
+  };
+
+  const closeOperation = async (operation) => {
+    if (!window.confirm(`Clôturer ${operation.reference} ?`)) return;
+    try {
+      await apiRequest(`/operations/${operation.id}/close`, { method: "POST" });
+      await loadData();
+    } catch (err) {
+      setError(err.message || "Clôture impossible.");
+    }
+  };
+
+  const viewHistory = async (operation) => {
+    try {
+      setError("");
+      const entries = await apiRequest(`/operations/${operation.id}/history`);
+      setHistory({ operation, entries: entries || [] });
+    } catch (err) {
+      setError(err.message || "Historique indisponible.");
+    }
   };
 
   return (
@@ -221,7 +274,7 @@ export default function OperationsManagementPage() {
                   {form.lines.map((line, idx) => (
                     <div className="row g-2 mb-2" key={idx}>
                       <div className="col-md-4">
-                        <select className="form-select" value={line.productId} onChange={(e) => updateLine(idx, "productId", e.target.value)}>
+                        <select className="form-select" required value={line.productId} onChange={(e) => updateLine(idx, "productId", e.target.value)}>
                           <option value="">Produit</option>
                           {products.map((product) => (
                             <option key={product.id} value={product.id}>{product.name}</option>
@@ -229,10 +282,10 @@ export default function OperationsManagementPage() {
                         </select>
                       </div>
                       <div className="col-md-3">
-                        <input className="form-control" type="number" step="0.01" value={line.quantity} placeholder="Qté" onChange={(e) => updateLine(idx, "quantity", e.target.value)} />
+                        <input className="form-control" type="number" min="0.01" step="0.01" required value={line.quantity} placeholder="Qté" onChange={(e) => updateLine(idx, "quantity", e.target.value)} />
                       </div>
                       <div className="col-md-3">
-                        <input className="form-control" type="number" step="0.01" value={line.unitPrice} placeholder="PU" onChange={(e) => updateLine(idx, "unitPrice", e.target.value)} />
+                        <input className="form-control" type="number" min="0" step="0.01" value={line.unitPrice} placeholder="PU" onChange={(e) => updateLine(idx, "unitPrice", e.target.value)} />
                       </div>
                       <div className="col-md-2 d-grid">
                         <button type="button" className="btn btn-outline-danger btn-sm" onClick={() => removeLine(idx)}>Retirer</button>
@@ -280,7 +333,10 @@ export default function OperationsManagementPage() {
                         <td className="text-end">
                           <div className="d-flex justify-content-end gap-2">
                             <button className="btn btn-sm btn-outline-primary" onClick={() => editOperation(operation)}>Éditer</button>
-                            <button className="btn btn-sm btn-outline-danger" onClick={() => removeOperation(operation.id)}>Supprimer</button>
+                            <button className="btn btn-sm btn-outline-dark" onClick={() => viewHistory(operation)}>Historique</button>
+                            {nextStatuses[operation.type]?.[operation.status] && <button className="btn btn-sm btn-outline-success" onClick={() => advanceStatus(operation)}>Avancer</button>}
+                            {operation.status === (operation.type === "IMPORT" ? "RECUE" : "LIVREE") && <button className="btn btn-sm btn-outline-secondary" onClick={() => closeOperation(operation)}>Clôturer</button>}
+                            {operation.status !== "CLOTUREE" && <button className="btn btn-sm btn-outline-danger" onClick={() => removeOperation(operation.id)}>Supprimer</button>}
                           </div>
                         </td>
                       </tr>
@@ -293,6 +349,7 @@ export default function OperationsManagementPage() {
           </section>
         </div>
       </div>
+      {history && <section className="card mt-4"><div className="card-body"><div className="d-flex justify-content-between align-items-center mb-3"><h2>Historique · {history.operation.reference}</h2><button className="btn btn-sm btn-outline-secondary" onClick={() => setHistory(null)}>Fermer</button></div><div className="table-responsive"><table className="table"><thead><tr><th>Date</th><th>Action</th><th>Utilisateur</th><th>Détails</th></tr></thead><tbody>{history.entries.map((entry) => <tr key={entry.id}><td>{entry.createdAt ? new Date(entry.createdAt).toLocaleString("fr-FR") : "—"}</td><td>{entry.action}</td><td>{entry.actorEmail || "—"}</td><td>{entry.details || "—"}</td></tr>)}</tbody></table>{!history.entries.length && <p className="text-secondary mb-0">Aucune action enregistrée.</p>}</div></div></section>}
     </>
   );
 }

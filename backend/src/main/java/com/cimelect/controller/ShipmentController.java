@@ -27,6 +27,11 @@ public class ShipmentController {
         return shipmentService.inProgress();
     }
 
+    @GetMapping("/all")
+    public List<ShipmentResponse> findAll() {
+        return shipmentService.findAll();
+    }
+
     @GetMapping("/{id}")
     public ShipmentResponse findById(@PathVariable Long id) {
         return shipmentService.findById(id);

@@ -15,7 +15,9 @@ export default function UsersPage() {
   const [users, setUsers] = useState([]);
   const [form, setForm] = useState(emptyForm);
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
   const [saving, setSaving] = useState(false);
+  const [query, setQuery] = useState("");
 
   const loadUsers = async () => {
     try {
@@ -34,6 +36,7 @@ export default function UsersPage() {
     event.preventDefault();
     setSaving(true);
     setError("");
+    setSuccess("");
 
     try {
       const payload = {
@@ -59,12 +62,21 @@ export default function UsersPage() {
 
       setForm(emptyForm);
       await loadUsers();
+      setSuccess("Compte enregistré avec succès.");
     } catch (err) {
       setError(err.message || "Erreur lors de la sauvegarde.");
     } finally {
       setSaving(false);
     }
   };
+
+  const visibleUsers = users.filter((user) =>
+    [user.firstName, user.lastName, user.email, user.role]
+      .filter(Boolean)
+      .join(" ")
+      .toLowerCase()
+      .includes(query.toLowerCase().trim()),
+  );
 
   const remove = async (id) => {
     if (!window.confirm("Supprimer ce compte ?")) return;
@@ -168,6 +180,7 @@ export default function UsersPage() {
                 </div>
 
                 {error && <div className="alert alert-danger mt-3 mb-0">{error}</div>}
+                {success && <div className="alert alert-success mt-3 mb-0">{success}</div>}
 
                 <div className="d-flex gap-2 mt-4">
                   <button className="btn btn-primary" type="submit" disabled={saving}>
@@ -193,8 +206,9 @@ export default function UsersPage() {
             <div className="card-body">
               <div className="d-flex justify-content-between align-items-center mb-3">
                 <h2>Comptes</h2>
-                <span className="small text-secondary">{users.length} comptes</span>
+                <span className="small text-secondary">{visibleUsers.length} comptes</span>
               </div>
+              <input className="form-control mb-3" placeholder="Rechercher..." value={query} onChange={(e) => setQuery(e.target.value)} />
               <div className="table-responsive">
                 <table className="table align-middle mb-0">
                   <thead>
@@ -207,7 +221,7 @@ export default function UsersPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {users.map((user) => (
+                    {visibleUsers.map((user) => (
                       <tr key={user.id}>
                         <td>{user.firstName} {user.lastName}</td>
                         <td>{user.email}</td>
@@ -227,7 +241,7 @@ export default function UsersPage() {
                     ))}
                   </tbody>
                 </table>
-                {!users.length && <p className="text-center text-secondary py-4 mb-0">Aucun utilisateur trouvé.</p>}
+                {!visibleUsers.length && <p className="text-center text-secondary py-4 mb-0">Aucun utilisateur trouvé.</p>}
               </div>
             </div>
           </section>

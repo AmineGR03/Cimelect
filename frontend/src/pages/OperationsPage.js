@@ -1,9 +1,17 @@
+import { useState } from "react";
 import { useSelector } from "react-redux";
 import StatusBadge from "../components/StatusBadge";
 export default function OperationsPage() {
+  const [query, setQuery] = useState("");
+  const [type, setType] = useState("ALL");
+  const [sort, setSort] = useState("reference");
   const operations = useSelector(
     (state) => state.dashboard.data.operations || [],
   );
+  const filteredOperations = operations.filter((item) => {
+    const text = [item.reference, item.supplierName, item.customerName, item.destination, item.status].filter(Boolean).join(" ").toLowerCase();
+    return (type === "ALL" || item.type === type) && text.includes(query.toLowerCase().trim());
+  }).sort((left, right) => String(left[sort] || "").localeCompare(String(right[sort] || "")));
   return (
     <>
       <div className="page-heading">
@@ -17,9 +25,7 @@ export default function OperationsPage() {
         <div className="card-body">
           <div className="d-flex justify-content-between mb-3">
             <strong>{operations.length} dossiers</strong>
-            <button className="btn btn-sm btn-outline-secondary">
-              <i className="bi bi-funnel me-2"></i>Filtrer
-            </button>
+            <div className="d-flex gap-2"><input className="form-control form-control-sm" placeholder="Rechercher..." value={query} onChange={(e) => setQuery(e.target.value)} /><select className="form-select form-select-sm" value={type} onChange={(e) => setType(e.target.value)}><option value="ALL">Tous</option><option value="IMPORT">Imports</option><option value="EXPORT">Exports</option></select><select className="form-select form-select-sm" value={sort} onChange={(e) => setSort(e.target.value)}><option value="reference">Référence</option><option value="status">Statut</option><option value="type">Type</option></select></div>
           </div>
           <div className="table-responsive">
             <table className="table align-middle">
@@ -34,7 +40,7 @@ export default function OperationsPage() {
                 </tr>
               </thead>
               <tbody>
-                {operations.map((item) => (
+                {filteredOperations.map((item) => (
                   <tr key={item.id}>
                     <td className="fw-semibold">
                       {item.reference || `OP-${item.id}`}
@@ -56,7 +62,7 @@ export default function OperationsPage() {
                 ))}
               </tbody>
             </table>
-            {!operations.length && (
+            {!filteredOperations.length && (
               <p className="text-center text-secondary py-4">
                 Aucune opération trouvée.
               </p>

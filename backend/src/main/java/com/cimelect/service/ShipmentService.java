@@ -58,6 +58,13 @@ public class ShipmentService {
     }
 
     @Transactional(readOnly = true)
+    public List<ShipmentResponse> findAll() {
+        return shipmentRepository.findAll().stream()
+                .map(shipmentMapper::toResponse)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
     public ShipmentResponse findById(Long id) {
         return shipmentMapper.toResponse(get(id));
     }

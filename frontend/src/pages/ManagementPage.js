@@ -14,7 +14,12 @@ export default function ManagementPage({ type }) {
   const [items, setItems] = useState([]);
   const [form, setForm] = useState(emptyForm);
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
+  const [query, setQuery] = useState("");
+  const [sort, setSort] = useState("name");
+  const [page, setPage] = useState(1);
+  const pageSize = 8;
 
   const endpoint = useMemo(() => {
     if (type === "suppliers") return "/suppliers";
@@ -50,6 +55,7 @@ export default function ManagementPage({ type }) {
   const submit = async (event) => {
     event.preventDefault();
     setError("");
+    setSuccess("");
     try {
       const payload =
         type === "products"
@@ -81,10 +87,24 @@ export default function ManagementPage({ type }) {
 
       setForm(emptyForm);
       await loadAll();
+      setSuccess(`${label} enregistré avec succès.`);
     } catch (err) {
       setError(err.message || "Sauvegarde impossible.");
     }
   };
+
+  const normalizedQuery = query.toLowerCase().trim();
+  const filteredItems = items.filter((item) =>
+    [item.companyName, item.name, item.sku, item.country, item.contactName]
+      .filter(Boolean)
+      .some((value) => value.toLowerCase().includes(normalizedQuery)),
+  ).sort((left, right) => {
+    const leftValue = sort === "country" ? (left.country || left.unit) : (left.name || left.companyName);
+    const rightValue = sort === "country" ? (right.country || right.unit) : (right.name || right.companyName);
+    return String(leftValue || "").localeCompare(String(rightValue || ""));
+  });
+  const pageCount = Math.max(1, Math.ceil(filteredItems.length / pageSize));
+  const visibleItems = filteredItems.slice((page - 1) * pageSize, page * pageSize);
 
   const remove = async (id) => {
     if (!window.confirm(`Supprimer ce ${label.toLowerCase()} ?`)) return;
@@ -178,6 +198,7 @@ export default function ManagementPage({ type }) {
                 )}
 
                 {error && <div className="alert alert-danger mt-2 mb-0">{error}</div>}
+                {success && <div className="alert alert-success mt-2 mb-0">{success}</div>}
 
                 <div className="d-flex gap-2 mt-3">
                   <button className="btn btn-primary" type="submit" disabled={loading}>
@@ -199,8 +220,9 @@ export default function ManagementPage({ type }) {
             <div className="card-body">
               <div className="d-flex justify-content-between align-items-center mb-3">
                 <h2>{type === "suppliers" ? "Fournisseurs" : type === "customers" ? "Clients" : "Produits"}</h2>
-                <span className="small text-secondary">{items.length} éléments</span>
+                <span className="small text-secondary">{filteredItems.length} éléments</span>
               </div>
+              <div className="d-flex gap-2 mb-3"><input className="form-control" placeholder="Rechercher..." value={query} onChange={(e) => { setQuery(e.target.value); setPage(1); }} /><select className="form-select" value={sort} onChange={(e) => setSort(e.target.value)}><option value="name">Trier par nom</option><option value="country">Trier par pays/unité</option></select></div>
               <div className="table-responsive">
                 <table className="table align-middle mb-0">
                   <thead>
@@ -212,7 +234,7 @@ export default function ManagementPage({ type }) {
                     </tr>
                   </thead>
                   <tbody>
-                    {items.map((item) => (
+                    {visibleItems.map((item) => (
                       <tr key={item.id}>
                         <td>{type === "products" ? item.name : item.companyName}</td>
                         <td>{type === "products" ? item.sku : item.country}</td>
@@ -227,8 +249,9 @@ export default function ManagementPage({ type }) {
                     ))}
                   </tbody>
                 </table>
-                {!items.length && <p className="text-center text-secondary py-4 mb-0">Aucun élément trouvé.</p>}
+                {!visibleItems.length && <p className="text-center text-secondary py-4 mb-0">Aucun élément trouvé.</p>}
               </div>
+              {pageCount > 1 && <div className="d-flex justify-content-between align-items-center mt-3"><button className="btn btn-sm btn-outline-secondary" disabled={page === 1} onClick={() => setPage(page - 1)}>Précédent</button><span className="small text-secondary">Page {page} / {pageCount}</span><button className="btn btn-sm btn-outline-secondary" disabled={page === pageCount} onClick={() => setPage(page + 1)}>Suivant</button></div>}
             </div>
           </section>
         </div>

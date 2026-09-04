@@ -3,17 +3,26 @@ import { apiRequest } from "../services/api";
 
 export const loadWorkspace = createAsyncThunk(
   "dashboard/loadWorkspace",
-  async (canSeeDashboard) => {
+  async ({ canSeeDashboard, canSeePartners }) => {
     const requests = [
       apiRequest("/operations/import"),
       apiRequest("/operations/export"),
       apiRequest("/shipments/in-progress"),
-      apiRequest("/suppliers"),
-      apiRequest("/customers"),
     ];
+    if (canSeePartners) {
+      requests.push(apiRequest("/suppliers"), apiRequest("/customers"));
+    }
     if (canSeeDashboard) requests.push(apiRequest("/dashboard"));
-    const [imports, exports, shipments, suppliers, customers, dashboard] =
-      await Promise.all(requests);
+    const results = await Promise.all(requests);
+    const imports = results[0];
+    const exports = results[1];
+    const shipments = results[2];
+    const partnersStart = 3;
+    const suppliers = canSeePartners ? results[partnersStart] : [];
+    const customers = canSeePartners ? results[partnersStart + 1] : [];
+    const dashboard = canSeeDashboard
+      ? results[canSeePartners ? partnersStart + 2 : partnersStart]
+      : undefined;
     return {
       operations: [...imports, ...exports],
       shipments,

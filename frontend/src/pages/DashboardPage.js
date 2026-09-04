@@ -3,7 +3,7 @@ import KpiCard from "../components/KpiCard";
 import StatusBadge from "../components/StatusBadge";
 
 export default function DashboardPage() {
-  const { data, loading } = useSelector((state) => state.dashboard);
+  const { data, loading, error } = useSelector((state) => state.dashboard);
   const dashboard = data.dashboard || {};
   const operations = data.operations || [];
   const alerts = dashboard.activeAiAlerts || [];
@@ -19,10 +19,11 @@ export default function DashboardPage() {
             La situation de vos flux, en un coup d’œil.
           </p>
         </div>
-        <span className="system-status">
-          <i className="bi bi-circle-fill"></i> SYSTÈME OPÉRATIONNEL
+        <span className={`system-status ${error ? "text-danger" : loading ? "text-warning" : ""}`}>
+          <i className="bi bi-circle-fill"></i> {error ? "CONNEXION À VÉRIFIER" : loading ? "SYNCHRONISATION" : "SYSTÈME OPÉRATIONNEL"}
         </span>
       </div>
+      {error && <div className="alert alert-warning" role="alert">{error}</div>}
       {loading && (
         <div className="progress mb-3" role="progressbar">
           <div className="progress-bar" style={{ width: "45%" }}></div>
@@ -78,15 +79,15 @@ export default function DashboardPage() {
               <h3>Documents obligatoires</h3>
               <div className="metric-row">
                 <span>FACTURE</span>
-                <strong>100%</strong>
+                <strong>{dashboard.documentCompliance?.FACTURE ?? 0}%</strong>
               </div>
               <div className="metric-row">
                 <span>PACKING LIST</span>
-                <strong>100%</strong>
+                <strong>{dashboard.documentCompliance?.PACKING_LIST ?? 0}%</strong>
               </div>
               <div className="metric-row">
                 <span>TRANSPORT</span>
-                <strong>96%</strong>
+                <strong>{dashboard.documentCompliance?.TRANSPORT ?? 0}%</strong>
               </div>
             </div>
           </div>
