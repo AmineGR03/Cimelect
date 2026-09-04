@@ -69,6 +69,49 @@ export default function DashboardPage() {
           />
         </div>
       </div>
+
+      <div className="row g-3 mb-4">
+        <div className="col-12 col-md-4">
+          <div className="card performance-card h-100">
+            <div className="card-body">
+              <span className="eyebrow">SÉCURITÉ</span>
+              <h3>Documents obligatoires</h3>
+              <div className="metric-row">
+                <span>FACTURE</span>
+                <strong>100%</strong>
+              </div>
+              <div className="metric-row">
+                <span>PACKING LIST</span>
+                <strong>100%</strong>
+              </div>
+              <div className="metric-row">
+                <span>TRANSPORT</span>
+                <strong>96%</strong>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="col-12 col-md-4">
+          <div className="card performance-card h-100">
+            <div className="card-body">
+              <span className="eyebrow">RÉSEAU</span>
+              <h3>Partenaires actifs</h3>
+              <div className="big-metric">{(data.partners || []).length}</div>
+              <small className="text-secondary">fournisseurs et clients connectés</small>
+            </div>
+          </div>
+        </div>
+        <div className="col-12 col-md-4">
+          <div className="card performance-card h-100">
+            <div className="card-body">
+              <span className="eyebrow">VÉLOCITÉ</span>
+              <h3>Flux en temps réel</h3>
+              <div className="big-metric">{(data.shipments || []).filter((item) => item.status !== "LIVREE").length}</div>
+              <small className="text-secondary">expéditions non clôturées</small>
+            </div>
+          </div>
+        </div>
+      </div>
       <div className="row g-3">
         <div className="col-12 col-xl-8">
           <section className="card chart-card h-100">

@@ -16,6 +16,12 @@ const links = [
     roles: ["ADMINISTRATEUR", "RESPONSABLE", "AGENT_IMPORT_EXPORT"],
   },
   {
+    to: "/operations/manage",
+    label: "Gestion opérations",
+    icon: "bi-clipboard-data",
+    roles: ["ADMINISTRATEUR", "AGENT_IMPORT_EXPORT"],
+  },
+  {
     to: "/shipments",
     label: "Expéditions",
     icon: "bi-box-seam",
@@ -26,6 +32,30 @@ const links = [
     label: "Partenaires",
     icon: "bi-buildings",
     roles: ["ADMINISTRATEUR", "AGENT_IMPORT_EXPORT"],
+  },
+  {
+    to: "/partners/suppliers",
+    label: "Fournisseurs",
+    icon: "bi-truck",
+    roles: ["ADMINISTRATEUR", "AGENT_IMPORT_EXPORT"],
+  },
+  {
+    to: "/partners/customers",
+    label: "Clients",
+    icon: "bi-person-badge",
+    roles: ["ADMINISTRATEUR", "AGENT_IMPORT_EXPORT"],
+  },
+  {
+    to: "/products",
+    label: "Produits",
+    icon: "bi-box",
+    roles: ["ADMINISTRATEUR", "AGENT_IMPORT_EXPORT"],
+  },
+  {
+    to: "/users",
+    label: "Utilisateurs",
+    icon: "bi-people",
+    roles: ["ADMINISTRATEUR"],
   },
 ];
 

@@ -346,6 +346,39 @@ h2 {
 .partner-card small {
   font-size: 0.72rem;
 }
+.performance-card .card-body {
+  padding: 20px 20px 18px;
+}
+.performance-card h3 {
+  font-size: 1.05rem;
+  margin: 8px 0 16px;
+}
+.metric-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 0.73rem;
+  letter-spacing: 0.06em;
+}
+.metric-row strong {
+  color: var(--ink);
+  letter-spacing: 0;
+}
+.big-metric {
+  font-size: 2.6rem;
+  font-weight: 800;
+  letter-spacing: -0.08em;
+  color: var(--teal);
+  margin-bottom: 6px;
+}
+.management-form .form-label {
+  font-size: 0.74rem;
+  color: var(--muted);
+  font-weight: 600;
+}
 .login-page {
   min-height: 100vh;
   display: grid;
