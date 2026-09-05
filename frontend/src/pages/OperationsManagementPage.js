@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 import { apiRequest } from "../services/api";
 
 const emptyForm = {
@@ -23,6 +24,9 @@ const nextStatuses = {
 };
 
 export default function OperationsManagementPage() {
+  const user = useSelector((state) => state.auth.user);
+  const canEditOperations = ["ADMINISTRATEUR", "AGENT_IMPORT_EXPORT"].includes(user?.role);
+  const canCloseOrDelete = ["ADMINISTRATEUR", "RESPONSABLE"].includes(user?.role);
   const [operations, setOperations] = useState([]);
   const [suppliers, setSuppliers] = useState([]);
   const [customers, setCustomers] = useState([]);
@@ -31,14 +35,14 @@ export default function OperationsManagementPage() {
   const [error, setError] = useState("");
   const [history, setHistory] = useState(null);
 
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     try {
       const [imports, exports, supplierList, customerList, productList] = await Promise.all([
         apiRequest("/operations/import"),
         apiRequest("/operations/export"),
-        apiRequest("/suppliers"),
-        apiRequest("/customers"),
-        apiRequest("/products"),
+        canEditOperations ? apiRequest("/suppliers") : Promise.resolve([]),
+        canEditOperations ? apiRequest("/customers") : Promise.resolve([]),
+        canEditOperations ? apiRequest("/products") : Promise.resolve([]),
       ]);
       setOperations([...imports, ...exports]);
       setSuppliers(supplierList || []);
@@ -47,11 +51,11 @@ export default function OperationsManagementPage() {
     } catch (err) {
       setError(err.message || "Impossible de charger les données.");
     }
-  };
+  }, [canEditOperations]);
 
   useEffect(() => {
     loadData();
-  }, []);
+  }, [loadData]);
 
   const updateLine = (index, field, value) => {
     const next = [...form.lines];
@@ -200,7 +204,7 @@ export default function OperationsManagementPage() {
       </div>
 
       <div className="row g-4">
-        <div className="col-12 col-xl-5">
+        {canEditOperations && <div className="col-12 col-xl-5">
           <section className="card h-100">
             <div className="card-body">
               <h2>{form.id ? "Modifier l’opération" : "Créer une opération"}</h2>
@@ -303,7 +307,7 @@ export default function OperationsManagementPage() {
               </form>
             </div>
           </section>
-        </div>
+        </div>}
 
         <div className="col-12 col-xl-7">
           <section className="card h-100">
@@ -332,11 +336,11 @@ export default function OperationsManagementPage() {
                         <td><span className="badge text-bg-light">{operation.status}</span></td>
                         <td className="text-end">
                           <div className="d-flex justify-content-end gap-2">
-                            <button className="btn btn-sm btn-outline-primary" onClick={() => editOperation(operation)}>Éditer</button>
+                            {canEditOperations && <button className="btn btn-sm btn-outline-primary" onClick={() => editOperation(operation)}>Éditer</button>}
                             <button className="btn btn-sm btn-outline-dark" onClick={() => viewHistory(operation)}>Historique</button>
                             {nextStatuses[operation.type]?.[operation.status] && <button className="btn btn-sm btn-outline-success" onClick={() => advanceStatus(operation)}>Avancer</button>}
-                            {operation.status === (operation.type === "IMPORT" ? "RECUE" : "LIVREE") && <button className="btn btn-sm btn-outline-secondary" onClick={() => closeOperation(operation)}>Clôturer</button>}
-                            {operation.status !== "CLOTUREE" && <button className="btn btn-sm btn-outline-danger" onClick={() => removeOperation(operation.id)}>Supprimer</button>}
+                            {canCloseOrDelete && operation.status === (operation.type === "IMPORT" ? "RECUE" : "LIVREE") && <button className="btn btn-sm btn-outline-secondary" onClick={() => closeOperation(operation)}>Clôturer</button>}
+                            {canCloseOrDelete && operation.status !== "CLOTUREE" && <button className="btn btn-sm btn-outline-danger" onClick={() => removeOperation(operation.id)}>Supprimer</button>}
                           </div>
                         </td>
                       </tr>

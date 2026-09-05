@@ -20,11 +20,11 @@ export async function apiRequest(path, options = {}) {
       "Backend inaccessible. Vérifiez que Spring Boot est démarré sur le port 8080.",
     );
   }
-  if (!response.ok)
-    throw new Error(
-      response.status === 401
-        ? "Session expirée."
-        : "Impossible de joindre le serveur.",
-    );
+  if (!response.ok) {
+    if (response.status === 401) throw new Error("Session expirée. Reconnectez-vous.");
+    if (response.status === 403) throw new Error("Accès refusé pour ce rôle.");
+    if (response.status >= 500) throw new Error("Le serveur rencontre une erreur.");
+    throw new Error("Requête refusée par le serveur.");
+  }
   return response.status === 204 ? null : response.json();
 }

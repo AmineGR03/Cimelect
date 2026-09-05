@@ -63,17 +63,17 @@ export default function App() {
             }
           />
           <Route path="/operations" element={<OperationsPage />} />
-          <Route path="/operations/manage" element={<OperationsManagementPage />} />
+          <Route path="/operations/manage" element={<ProtectedRoute roles={["ADMINISTRATEUR", "RESPONSABLE", "AGENT_IMPORT_EXPORT"]} redirectTo="/operations"><OperationsManagementPage /></ProtectedRoute>} />
           <Route path="/shipments" element={<ShipmentsPage />} />
-          <Route path="/shipments/manage" element={<ShipmentManagementPage />} />
-          <Route path="/documents" element={<DocumentsPage />} />
-          <Route path="/audit" element={<AuditPage />} />
+          <Route path="/shipments/manage" element={<ProtectedRoute roles={["ADMINISTRATEUR", "AGENT_IMPORT_EXPORT"]} redirectTo="/shipments"><ShipmentManagementPage /></ProtectedRoute>} />
+          <Route path="/documents" element={<ProtectedRoute roles={["ADMINISTRATEUR", "RESPONSABLE", "AGENT_IMPORT_EXPORT"]} redirectTo="/operations"><DocumentsPage /></ProtectedRoute>} />
+          <Route path="/audit" element={<ProtectedRoute roles={["ADMINISTRATEUR", "RESPONSABLE"]} redirectTo="/operations"><AuditPage /></ProtectedRoute>} />
           <Route path="/profile" element={<ProfilePage />} />
-          <Route path="/partners" element={<PartnersPage />} />
-          <Route path="/partners/suppliers" element={<ManagementPage type="suppliers" />} />
-          <Route path="/partners/customers" element={<ManagementPage type="customers" />} />
-          <Route path="/products" element={<ManagementPage type="products" />} />
-          <Route path="/users" element={<UsersPage />} />
+          <Route path="/partners" element={<ProtectedRoute roles={["ADMINISTRATEUR", "AGENT_IMPORT_EXPORT"]} redirectTo="/operations"><PartnersPage /></ProtectedRoute>} />
+          <Route path="/partners/suppliers" element={<ProtectedRoute roles={["ADMINISTRATEUR", "AGENT_IMPORT_EXPORT"]} redirectTo="/operations"><ManagementPage type="suppliers" /></ProtectedRoute>} />
+          <Route path="/partners/customers" element={<ProtectedRoute roles={["ADMINISTRATEUR", "AGENT_IMPORT_EXPORT"]} redirectTo="/operations"><ManagementPage type="customers" /></ProtectedRoute>} />
+          <Route path="/products" element={<ProtectedRoute roles={["ADMINISTRATEUR", "AGENT_IMPORT_EXPORT"]} redirectTo="/operations"><ManagementPage type="products" /></ProtectedRoute>} />
+          <Route path="/users" element={<ProtectedRoute roles={["ADMINISTRATEUR"]} redirectTo="/operations"><UsersPage /></ProtectedRoute>} />
         </Route>
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Routes>

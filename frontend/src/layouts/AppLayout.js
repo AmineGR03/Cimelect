@@ -20,7 +20,7 @@ const links = [
     to: "/operations/manage",
     label: "Gestion opérations",
     icon: "bi-clipboard-data",
-    roles: ["ADMINISTRATEUR", "AGENT_IMPORT_EXPORT"],
+    roles: ["ADMINISTRATEUR", "RESPONSABLE", "AGENT_IMPORT_EXPORT"],
   },
   {
     to: "/shipments",
@@ -38,7 +38,7 @@ const links = [
     to: "/documents",
     label: "Documents",
     icon: "bi-file-earmark-text",
-    roles: ["ADMINISTRATEUR", "AGENT_IMPORT_EXPORT"],
+    roles: ["ADMINISTRATEUR", "RESPONSABLE", "AGENT_IMPORT_EXPORT"],
   },
   {
     to: "/partners",
