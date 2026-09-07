@@ -71,6 +71,11 @@ Cimelect est une application de pilotage des opérations de commerce internation
 - Interface responsive et intuitive.
 - Navigation cohérente selon les rôles.
 
+## Conception OOP et UML
+
+Les bases de conception objet, le diagramme de classes, le cas d'utilisation et les
+deux diagrammes de séquence sont disponibles dans [Conception.md](Conception.md).
+
 ## Modules et Navigation
 
 L'application est structurée en modules accessibles selon les droits de l'utilisateur :
