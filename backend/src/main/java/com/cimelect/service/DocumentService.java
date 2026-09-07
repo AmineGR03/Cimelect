@@ -113,7 +113,13 @@ public class DocumentService {
             throw new BusinessException("La suppression d'un document nécessite une confirmation explicite (RG18)");
         }
         Document document = get(id);
+        Path storagePath = Paths.get(document.getStoragePath());
         documentRepository.delete(document);
+        try {
+            Files.deleteIfExists(storagePath);
+        } catch (IOException ex) {
+            throw new BusinessException("Impossible de supprimer le fichier");
+        }
         auditService.log(currentUserService.requireUser(), "Document", id, AuditAction.DOCUMENT_DELETE,
                 "Suppression " + document.getOriginalFilename(), "Confirmation utilisateur");
     }
