@@ -10,5 +10,8 @@ public enum AuditAction {
     DOCUMENT_DELETE,
     LOGIN,
     LOGOUT,
-    CLOSE
+    CLOSE,
+    AGENT_ASSIGN,
+    AGENT_UNASSIGN,
+    AGENT_MANAGE
 }

@@ -21,6 +21,7 @@ public class DataInitializer implements CommandLineRunner {
     private final ProductRepository productRepository;
     private final OperationRepository operationRepository;
     private final ShipmentRepository shipmentRepository;
+    private final AgentRepository agentRepository;
     private final PasswordEncoder passwordEncoder;
     private final AppProperties appProperties;
 
@@ -32,6 +33,7 @@ public class DataInitializer implements CommandLineRunner {
             ProductRepository productRepository,
             OperationRepository operationRepository,
             ShipmentRepository shipmentRepository,
+            AgentRepository agentRepository,
             PasswordEncoder passwordEncoder,
             AppProperties appProperties
     ) {
@@ -42,6 +44,7 @@ public class DataInitializer implements CommandLineRunner {
         this.productRepository = productRepository;
         this.operationRepository = operationRepository;
         this.shipmentRepository = shipmentRepository;
+        this.agentRepository = agentRepository;
         this.passwordEncoder = passwordEncoder;
         this.appProperties = appProperties;
     }
@@ -56,6 +59,7 @@ public class DataInitializer implements CommandLineRunner {
         seedRequired(OperationType.EXPORT, DocumentType.FACTURE);
         seedRequired(OperationType.EXPORT, DocumentType.TRANSPORT);
         seedDemoBusinessData();
+        seedAgents();
     }
 
     private void ensureDemoUsers() {
@@ -178,5 +182,22 @@ public class DataInitializer implements CommandLineRunner {
                 .expectedArrivalDate(LocalDate.now().plusDays(3))
                 .status(ShipmentStatus.EN_PREPARATION)
                 .build());
+    }
+
+    private void seedAgents() {
+        User agent = userRepository.findByEmail("agent@cimelect.local").orElse(null);
+        User responsable = userRepository.findByEmail("responsable@cimelect.local").orElse(null);
+
+        if (agent != null && agent.getRole() == Role.AGENT_IMPORT_EXPORT) {
+            agentRepository.findByUserId(agent.getId()).orElseGet(() -> agentRepository.save(
+                    Agent.builder()
+                            .user(agent)
+                            .manager(responsable)
+                            .name("Agent Import/Export - " + agent.getFirstName())
+                            .description("Agent responsable de la gestion des opérations d'import/export")
+                            .active(true)
+                            .build()
+            ));
+        }
     }
 }

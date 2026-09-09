@@ -5,6 +5,7 @@ import com.cimelect.dto.user.UserRequest;
 import com.cimelect.dto.user.UserResponse;
 import com.cimelect.entity.User;
 import com.cimelect.enums.AuditAction;
+import com.cimelect.enums.Role;
 import com.cimelect.exception.BusinessException;
 import com.cimelect.exception.ResourceNotFoundException;
 import com.cimelect.mapper.UserMapper;
@@ -56,6 +57,8 @@ public class UserService {
 
     @Transactional
     public UserResponse create(UserRequest request) {
+        User actor = currentUserService.requireUser();
+        
         if (request.password() == null || request.password().isBlank()) {
             throw new BusinessException("Le mot de passe est obligatoire");
         }
@@ -70,13 +73,15 @@ public class UserService {
                 .role(request.role())
                 .enabled(request.enabled() == null || request.enabled())
                 .build());
-        auditService.log(currentUserService.requireUser(), "User", created.getId(), AuditAction.CREATE, "Création compte " + created.getEmail());
+        auditService.log(actor, "User", created.getId(), AuditAction.CREATE, "Création compte " + created.getEmail());
         return userMapper.toResponse(created);
     }
 
     @Transactional
     public UserResponse update(Long id, UserRequest request) {
+        User actor = currentUserService.requireUser();
         User user = get(id);
+        
         if (userRepository.existsByEmailAndIdNot(request.email(), id)) {
             throw new BusinessException("Email déjà utilisé");
         }
@@ -90,7 +95,7 @@ public class UserService {
         if (request.password() != null && !request.password().isBlank()) {
             user.setPassword(passwordEncoder.encode(request.password()));
         }
-        auditService.log(currentUserService.requireUser(), "User", id, AuditAction.UPDATE, "Modification compte");
+        auditService.log(actor, "User", id, AuditAction.UPDATE, "Modification compte " + user.getEmail());
         return userMapper.toResponse(user);
     }
 
@@ -108,9 +113,10 @@ public class UserService {
 
     @Transactional
     public void delete(Long id) {
+        User actor = currentUserService.requireUser();
         User user = get(id);
         userRepository.delete(user);
-        auditService.log(currentUserService.requireUser(), "User", id, AuditAction.DELETE, "Suppression compte " + user.getEmail());
+        auditService.log(actor, "User", id, AuditAction.DELETE, "Suppression compte " + user.getEmail());
     }
 
     private User get(Long id) {

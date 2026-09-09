@@ -68,7 +68,7 @@ const links = [
     to: "/users",
     label: "Utilisateurs",
     icon: "bi-people",
-    roles: ["ADMINISTRATEUR"],
+    roles: ["ADMINISTRATEUR", "RESPONSABLE"],
   },
   {
     to: "/audit",

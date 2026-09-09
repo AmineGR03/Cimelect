@@ -12,6 +12,7 @@ public record AuditLogResponse(
         String details,
         String justification,
         Long actorId,
+        String actorName,
         String actorEmail,
         Instant createdAt
 ) {

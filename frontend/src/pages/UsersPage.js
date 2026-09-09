@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 import { apiRequest } from "../services/api";
 
 const emptyForm = {
@@ -12,12 +13,39 @@ const emptyForm = {
 };
 
 export default function UsersPage() {
+  const currentUser = useSelector((state) => state.auth.user);
   const [users, setUsers] = useState([]);
   const [form, setForm] = useState(emptyForm);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [saving, setSaving] = useState(false);
   const [query, setQuery] = useState("");
+
+  // Déterminer les rôles disponibles selon le rôle de l'utilisateur actuel
+  const getAvailableRoles = () => {
+    if (currentUser?.role === "RESPONSABLE") {
+      return ["AGENT_IMPORT_EXPORT"];
+    }
+    return ["ADMINISTRATEUR", "RESPONSABLE", "AGENT_IMPORT_EXPORT"];
+  };
+
+  // Filtrer les utilisateurs selon le rôle
+  // Un RESPONSABLE voit tous les AGENTS
+  // Un ADMINISTRATEUR voit tous les utilisateurs
+  const getVisibleUsersForEdit = () => {
+    let filtered = users;
+    if (currentUser?.role === "RESPONSABLE") {
+      // Les RESPONSABLES gèrent les AGENTS
+      filtered = filtered.filter((u) => u.role === "AGENT_IMPORT_EXPORT");
+    }
+    return filtered.filter((user) =>
+      [user.firstName, user.lastName, user.email, user.role]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase()
+        .includes(query.toLowerCase().trim()),
+    );
+  };
 
   const loadUsers = async () => {
     try {
@@ -70,13 +98,8 @@ export default function UsersPage() {
     }
   };
 
-  const visibleUsers = users.filter((user) =>
-    [user.firstName, user.lastName, user.email, user.role]
-      .filter(Boolean)
-      .join(" ")
-      .toLowerCase()
-      .includes(query.toLowerCase().trim()),
-  );
+  const visibleUsers = getVisibleUsersForEdit();
+  const availableRoles = getAvailableRoles();
 
   const remove = async (id) => {
     if (!window.confirm("Supprimer ce compte ?")) return;
@@ -104,15 +127,19 @@ export default function UsersPage() {
     <>
       <div className="page-heading">
         <span className="eyebrow">ADMINISTRATION</span>
-        <h1>Utilisateurs</h1>
-        <p className="text-secondary">Gérez les comptes, les rôles et l’état des accès.</p>
+        <h1>{currentUser?.role === "RESPONSABLE" ? "Gestion des utilisateurs" : "Utilisateurs"}</h1>
+        <p className="text-secondary">
+          {currentUser?.role === "RESPONSABLE"
+            ? "Créez et gérez les comptes utilisateurs du responsable."
+            : "Gérez les comptes, les rôles et l'état des accès."}
+        </p>
       </div>
 
       <div className="row g-4">
         <div className="col-12 col-xl-4">
           <section className="card h-100">
             <div className="card-body">
-              <h2>{form.id ? "Modifier le compte" : "Créer un compte"}</h2>
+              <h2>{form.id ? "Modifier l'utilisateur" : "Créer un utilisateur"}</h2>
               <form onSubmit={submit} className="mt-3 management-form">
                 <div className="row g-3">
                   <div className="col-md-6">
@@ -161,9 +188,11 @@ export default function UsersPage() {
                       value={form.role}
                       onChange={(e) => setForm({ ...form, role: e.target.value })}
                     >
-                      <option value="ADMINISTRATEUR">ADMINISTRATEUR</option>
-                      <option value="RESPONSABLE">RESPONSABLE</option>
-                      <option value="AGENT_IMPORT_EXPORT">AGENT_IMPORT_EXPORT</option>
+                      {availableRoles.map((role) => (
+                        <option key={role} value={role}>
+                          {role}
+                        </option>
+                      ))}
                     </select>
                   </div>
                   <div className="col-md-6">
@@ -205,8 +234,8 @@ export default function UsersPage() {
           <section className="card h-100">
             <div className="card-body">
               <div className="d-flex justify-content-between align-items-center mb-3">
-                <h2>Comptes</h2>
-                <span className="small text-secondary">{visibleUsers.length} comptes</span>
+                <h2>{currentUser?.role === "RESPONSABLE" ? "Utilisateurs" : "Comptes"}</h2>
+                <span className="small text-secondary">{visibleUsers.length} {currentUser?.role === "RESPONSABLE" ? "utilisateurs" : "comptes"}</span>
               </div>
               <input className="form-control mb-3" placeholder="Rechercher..." value={query} onChange={(e) => setQuery(e.target.value)} />
               <div className="table-responsive">

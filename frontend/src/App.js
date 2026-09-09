@@ -73,7 +73,7 @@ export default function App() {
           <Route path="/partners/suppliers" element={<ProtectedRoute roles={["ADMINISTRATEUR", "AGENT_IMPORT_EXPORT"]} redirectTo="/operations"><ManagementPage type="suppliers" /></ProtectedRoute>} />
           <Route path="/partners/customers" element={<ProtectedRoute roles={["ADMINISTRATEUR", "AGENT_IMPORT_EXPORT"]} redirectTo="/operations"><ManagementPage type="customers" /></ProtectedRoute>} />
           <Route path="/products" element={<ProtectedRoute roles={["ADMINISTRATEUR", "AGENT_IMPORT_EXPORT"]} redirectTo="/operations"><ManagementPage type="products" /></ProtectedRoute>} />
-          <Route path="/users" element={<ProtectedRoute roles={["ADMINISTRATEUR"]} redirectTo="/operations"><UsersPage /></ProtectedRoute>} />
+          <Route path="/users" element={<ProtectedRoute roles={["ADMINISTRATEUR", "RESPONSABLE"]} redirectTo="/operations"><UsersPage /></ProtectedRoute>} />
         </Route>
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Routes>
